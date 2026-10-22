@@ -889,33 +889,43 @@
             const brandInputs = [...document.querySelectorAll('input[name="serviceBrand"]')];
             const changeBrandButton = document.getElementById('changeBrandButton');
 
+            bindBrandChoiceInputs(brandInputs, continueButton, selectionError);
+            continueButton.addEventListener('click', () => continueWithSelectedBrand(brandInputs, brandGate, appContainer, selectionError));
+            changeBrandButton.addEventListener('click', () => showBrandGate(brandGate, appContainer));
+        }
+
+        function bindBrandChoiceInputs(brandInputs, continueButton, selectionError) {
             brandInputs.forEach(input => input.addEventListener('change', () => {
                 continueButton.disabled = false;
                 selectionError.textContent = '';
             }));
+        }
 
-            continueButton.addEventListener('click', () => {
-                const selectedInput = brandInputs.find(input => input.checked);
-                if (!selectedInput) {
-                    selectionError.textContent = 'Devam etmek için DozaTech veya Unilever seçin.';
-                    return;
-                }
+        function continueWithSelectedBrand(brandInputs, brandGate, appContainer, selectionError) {
+            const selectedInput = brandInputs.find(input => input.checked);
+            if (!selectedInput) {
+                selectionError.textContent = 'Devam etmek için DozaTech veya Unilever seçin.';
+                return;
+            }
 
-                activeBrand = selectedInput.value;
-                const brandLogo = document.getElementById('activeBrandLogo');
-                brandLogo.src = activeBrand === 'unilever' ? 'assets/unilever-pro-logo.png' : 'logo.png';
-                brandLogo.alt = activeBrand === 'unilever' ? 'Unilever' : 'DozaTech';
-                brandLogo.classList.toggle('unilever-logo', activeBrand === 'unilever');
-                document.getElementById('footerBrandName').textContent = activeBrand === 'unilever' ? 'Unilever Profesyonel' : 'DozaTech';
-                brandGate.hidden = true;
-                appContainer.hidden = false;
-            });
+            activeBrand = selectedInput.value;
+            updateActiveBrandIdentity(activeBrand);
+            brandGate.hidden = true;
+            appContainer.hidden = false;
+        }
 
-            changeBrandButton.addEventListener('click', () => {
-                brandGate.hidden = false;
-                appContainer.hidden = true;
-                document.getElementById('brandGateTitle').focus();
-            });
+        function updateActiveBrandIdentity(brand) {
+            const brandLogo = document.getElementById('activeBrandLogo');
+            brandLogo.src = brand === 'unilever' ? 'assets/unilever-pro-logo.png' : 'logo.png';
+            brandLogo.alt = brand === 'unilever' ? 'Unilever' : 'DozaTech';
+            brandLogo.classList.toggle('unilever-logo', brand === 'unilever');
+            document.getElementById('footerBrandName').textContent = brand === 'unilever' ? 'Unilever Profesyonel' : 'DozaTech';
+        }
+
+        function showBrandGate(brandGate, appContainer) {
+            brandGate.hidden = false;
+            appContainer.hidden = true;
+            document.getElementById('brandGateTitle').focus();
         }
 
         function setupEventListeners() {

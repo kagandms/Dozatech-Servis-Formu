@@ -15,7 +15,23 @@
         red: [200, 57, 72]
     };
 
+    /**
+     * Creates the selected brand's service PDF.
+     * @param {object} options Form data, checklists, and brand images.
+     * @returns {{blob: Blob}} The generated PDF as a browser Blob.
+     */
     function createServicePdf(options) {
+        const doc = createPdfDocument(options);
+        const theme = getTheme(options.brand);
+        const page = { width: 210, height: 297, left: 14, right: 196 };
+        const layout = createPageLayout(doc, options, page, theme);
+        drawServiceSections(doc, options, page, theme, layout);
+        drawSignatures(doc, options, page, theme);
+        drawFooters(doc, options.brand, page);
+        return { blob: doc.output('blob') };
+    }
+
+    function createPdfDocument(options) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ format: 'a4', unit: 'mm' });
         if (options.fontBase64) {
@@ -24,10 +40,15 @@
             doc.setFont('Roboto');
         }
 
-        const theme = options.brand === 'unilever'
-            ? { primary: COLORS.blue, pale: COLORS.bluePale, section: COLORS.cyan }
-            : { primary: COLORS.teal, pale: COLORS.tealPale, section: COLORS.indigo };
-        const page = { width: 210, height: 297, left: 14, right: 196 };
+        return doc;
+    }
+
+    function getTheme(brand) {
+        if (brand === 'unilever') return { primary: COLORS.blue, pale: COLORS.bluePale, section: COLORS.cyan };
+        return { primary: COLORS.teal, pale: COLORS.tealPale, section: COLORS.indigo };
+    }
+
+    function createPageLayout(doc, options, page, theme) {
         let y = 0;
 
         const drawHeader = () => {
@@ -52,7 +73,12 @@
         };
 
         drawHeader();
-        y = drawChecklistGroup(doc, options, {
+        return { ensureSpace, getStartY: () => y };
+    }
+
+    function drawServiceSections(doc, options, page, theme, layout) {
+        const startY = layout.getStartY();
+        let y = drawChecklistGroup(doc, options, {
             count: options.machineCount,
             states: options.machineStates,
             items: options.machineChecklist,
@@ -60,8 +86,8 @@
             itemTitle: 'Bulaşık Makinesi',
             color: theme.primary,
             page,
-            y,
-            ensureSpace
+            y: startY,
+            ensureSpace: layout.ensureSpace
         });
         y = drawChecklistGroup(doc, options, {
             count: options.pumpCount,
@@ -72,12 +98,9 @@
             color: theme.section,
             page,
             y,
-            ensureSpace
+            ensureSpace: layout.ensureSpace
         });
-        y = drawNotes(doc, options.notes, page, y, ensureSpace, theme);
-        drawSignatures(doc, options, page, theme);
-        drawFooters(doc, options.brand, page);
-        return { blob: doc.output('blob') };
+        return drawNotes(doc, options.notes, page, y, layout.ensureSpace, theme);
     }
 
     function drawDozaTechHeader(doc, options, page) {
