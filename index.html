@@ -166,29 +166,24 @@
         }
 
         .brand-selection-section {
-            width: min(100%, 620px);
+            width: 100%;
             margin: 0 auto 16px;
-            padding: clamp(24px, 6vw, 42px);
+            padding: 16px 18px;
             border: 1px solid rgba(76, 201, 240, .2);
             border-radius: 24px;
             background: linear-gradient(145deg, rgba(18, 18, 31, .98), rgba(13, 21, 32, .98));
             box-shadow: var(--shadow-soft), 0 0 70px rgba(76, 201, 240, .08);
         }
 
-        .brand-selection-section[hidden], #formContent[hidden] { display: none; }
-        .brand-gate-kicker { color: var(--primary-color); font-size: .76rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-        .brand-selection-section h2 { margin: 8px 0; font-size: clamp(1.25rem, 5vw, 1.7rem); }
-        .brand-gate-copy { color: var(--text-secondary); margin-bottom: 24px; }
-        .brand-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-        .brand-option { position: relative; min-height: 148px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 18px; border: 1px solid rgba(184, 197, 214, .18); border-radius: 18px; background: rgba(13, 13, 24, .65); color: white; cursor: pointer; transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast); }
+        .brand-selection-section h2 { margin: 0 0 10px; font-size: .9rem; }
+        .brand-gate-copy { color: var(--text-secondary); margin-bottom: 12px; font-size: .84rem; }
+        .brand-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .brand-option { position: relative; min-height: 68px; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 12px; padding: 10px 14px; border: 1px solid rgba(184, 197, 214, .18); border-radius: 14px; background: rgba(13, 13, 24, .65); color: white; cursor: pointer; transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast); }
         .brand-option:hover { transform: translateY(-2px); border-color: rgba(76, 201, 240, .65); }
         .brand-option:has(input:checked) { border-color: var(--primary-color); background: rgba(76, 201, 240, .11); box-shadow: inset 0 0 0 1px var(--primary-color); }
-        .brand-option input { position: absolute; top: 12px; left: 12px; accent-color: var(--primary-color); }
-        .brand-option img { width: 142px; max-width: 100%; height: 54px; object-fit: contain; background: white; border-radius: 8px; padding: 5px 10px; }
-        .brand-option strong { font-size: 1rem; }
-        .brand-continue { width: 100%; margin-top: 20px; padding: 14px 18px; border: 0; border-radius: 12px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); color: #06131c; font: inherit; font-weight: 750; cursor: pointer; }
-        .brand-continue:disabled { cursor: not-allowed; opacity: .45; }
-        .brand-error { min-height: 1.4em; margin-top: 8px; color: #ff9baa; font-size: .85rem; }
+        .brand-option input { flex-shrink: 0; accent-color: var(--primary-color); }
+        .brand-option img { width: 88px; max-width: 28%; height: 38px; object-fit: contain; background: white; border-radius: 7px; padding: 4px 8px; }
+        .brand-option strong { font-size: .95rem; }
 
         /* Logo Section */
         .logo-section {
@@ -207,7 +202,7 @@
             flex-shrink: 0;
         }
 
-        .logout-btn, .change-brand-btn {
+        .logout-btn {
             padding: 10px 14px;
             border: 1px solid rgba(239, 71, 111, .45);
             border-radius: 10px;
@@ -223,8 +218,6 @@
         .logout-btn:hover { background: rgba(239, 71, 111, .2); border-color: var(--danger-color); }
         .logout-btn:disabled { cursor: wait; opacity: .65; }
         .logout-btn:focus-visible { outline: 3px solid var(--primary-light); outline-offset: 3px; }
-        .change-brand-btn { border-color: rgba(76, 201, 240, .4); background: rgba(76, 201, 240, .08); color: var(--primary-light); }
-        .change-brand-btn:hover { background: rgba(76, 201, 240, .16); }
 
         .logo-container {
             display: inline-block;
@@ -517,6 +510,8 @@
             background: #25D366;
         }
 
+        .action-buttons button:disabled { cursor: not-allowed; opacity: .45; filter: saturate(.55); }
+
         footer {
             text-align: center;
             padding: 20px;
@@ -617,7 +612,7 @@
 
             .logo-image { max-width: min(52vw, 220px); }
 
-            .logout-btn, .change-brand-btn { flex-shrink: 0; padding: 8px 9px; font-size: .72rem; }
+            .logout-btn { flex-shrink: 0; padding: 8px 9px; font-size: .72rem; }
             .brand-options { grid-template-columns: 1fr; }
 
             .checklist {
@@ -652,7 +647,6 @@
                 <img src="kase.jpg" id="kaseImage" style="display: none;" alt="Kase">
             </div>
             <div class="header-actions">
-                <button class="change-brand-btn" id="changeBrandButton" type="button" hidden>Marka değiştir</button>
                 <button class="logout-btn" id="logoutButton" type="button">Çıkış yap</button>
             </div>
         </header>
@@ -676,10 +670,9 @@
             });
         </script>
 
-        <section class="brand-selection-section customer-section" id="brandSelectionSection" aria-labelledby="brandGateTitle">
-            <p class="brand-gate-kicker">Servis formu</p>
-            <h2 id="brandGateTitle" tabindex="-1">Önce markayı seçin</h2>
-            <p class="brand-gate-copy">Form ve PDF seçtiğiniz tek markaya göre hazırlanır.</p>
+        <section class="brand-selection-section customer-section" id="brandSelectionSection" aria-labelledby="brandSelectionTitle">
+            <h2 id="brandSelectionTitle">Marka seçimi</h2>
+            <p class="brand-gate-copy">PDF hangi marka için hazırlanacak?</p>
             <div class="brand-options" role="radiogroup" aria-label="Marka seçimi">
                 <label class="brand-option">
                     <input type="radio" name="serviceBrand" value="dozatech">
@@ -692,11 +685,8 @@
                     <strong>Unilever</strong>
                 </label>
             </div>
-            <button class="brand-continue" id="brandContinueButton" type="button" disabled>Seçimi onayla</button>
-            <p class="brand-error" id="brandSelectionError" aria-live="polite"></p>
         </section>
 
-        <div id="formContent" hidden>
         <section class="customer-section">
             <h2>Müşteri Seçimi</h2>
             <div class="customer-controls">
@@ -746,7 +736,6 @@
         <footer>
             <p>© 2024 <span id="footerBrandName">DozaTech</span> - Endüstriyel Mutfak Çözümleri</p>
         </footer>
-        </div>
     </div>
 
     <!-- Modals -->
@@ -882,36 +871,13 @@
         }
 
         function setupBrandSelection() {
-            const brandSection = document.getElementById('brandSelectionSection');
-            const formContent = document.getElementById('formContent');
-            const continueButton = document.getElementById('brandContinueButton');
-            const selectionError = document.getElementById('brandSelectionError');
             const brandInputs = [...document.querySelectorAll('input[name="serviceBrand"]')];
-            const changeBrandButton = document.getElementById('changeBrandButton');
-
-            bindBrandChoiceInputs(brandInputs, continueButton, selectionError);
-            continueButton.addEventListener('click', () => continueWithSelectedBrand(brandInputs, brandSection, formContent, selectionError));
-            changeBrandButton.addEventListener('click', () => showBrandSelection(brandSection, formContent));
-        }
-
-        function bindBrandChoiceInputs(brandInputs, continueButton, selectionError) {
+            saveBtn.disabled = true;
+            sendBtn.disabled = true;
             brandInputs.forEach(input => input.addEventListener('change', () => {
-                continueButton.disabled = false;
-                selectionError.textContent = '';
+                activeBrand = input.value;
+                updateActiveBrandIdentity(activeBrand);
             }));
-        }
-
-        function continueWithSelectedBrand(brandInputs, brandSection, formContent, selectionError) {
-            const selectedInput = brandInputs.find(input => input.checked);
-            if (!selectedInput) {
-                selectionError.textContent = 'Devam etmek için DozaTech veya Unilever seçin.';
-                return;
-            }
-
-            activeBrand = selectedInput.value;
-            updateActiveBrandIdentity(activeBrand);
-            brandSection.hidden = true;
-            formContent.hidden = false;
         }
 
         function updateActiveBrandIdentity(brand) {
@@ -920,13 +886,8 @@
             brandLogo.alt = brand === 'unilever' ? 'Unilever' : 'DozaTech';
             brandLogo.classList.toggle('unilever-logo', brand === 'unilever');
             document.getElementById('footerBrandName').textContent = brand === 'unilever' ? 'Unilever Profesyonel' : 'DozaTech';
-            document.getElementById('changeBrandButton').hidden = false;
-        }
-
-        function showBrandSelection(brandSection, formContent) {
-            brandSection.hidden = false;
-            formContent.hidden = true;
-            document.getElementById('brandGateTitle').focus();
+            saveBtn.disabled = false;
+            sendBtn.disabled = false;
         }
 
         function setupEventListeners() {
