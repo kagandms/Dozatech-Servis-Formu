@@ -166,10 +166,35 @@
 
         /* Logo Section */
         .logo-section {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
             padding: 20px 8px;
             margin-bottom: 16px;
         }
+
+        .logout-btn {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            padding: 10px 14px;
+            transform: translateY(-50%);
+            border: 1px solid rgba(239, 71, 111, .45);
+            border-radius: 10px;
+            background: rgba(239, 71, 111, .1);
+            color: #ffb2c2;
+            font: inherit;
+            font-size: .82rem;
+            font-weight: 650;
+            cursor: pointer;
+            transition: background var(--transition-fast), border-color var(--transition-fast);
+        }
+
+        .logout-btn:hover { background: rgba(239, 71, 111, .2); border-color: var(--danger-color); }
+        .logout-btn:disabled { cursor: wait; opacity: .65; }
+        .logout-btn:focus-visible { outline: 3px solid var(--primary-light); outline-offset: 3px; }
 
         .logo-container {
             display: inline-block;
@@ -548,6 +573,14 @@
         }
 
         @media (max-width: 480px) {
+            .logo-section { justify-content: space-between; gap: 10px; padding: 12px 4px; }
+
+            .logo-container { padding: 10px 12px; border-radius: 14px; }
+
+            .logo-image { max-width: min(52vw, 220px); }
+
+            .logout-btn { position: static; flex-shrink: 0; padding: 9px 10px; transform: none; font-size: .76rem; }
+
             .checklist {
                 grid-template-columns: 1fr;
             }
@@ -579,7 +612,27 @@
                 <img src="logo.png" alt="DozaTech" class="logo-image">
                 <img src="kase.jpg" id="kaseImage" style="display: none;" alt="Kase">
             </div>
+            <button class="logout-btn" id="logoutButton" type="button">Çıkış yap</button>
         </header>
+
+        <script>
+            const logoutButton = document.querySelector('#logoutButton');
+
+            logoutButton.addEventListener('click', async () => {
+                logoutButton.disabled = true;
+                logoutButton.textContent = 'Çıkış yapılıyor…';
+
+                try {
+                    const response = await fetch('/api/logout', { method: 'POST' });
+                    if (!response.ok) throw new Error('logout_failed');
+                    window.location.replace('/login.html');
+                } catch {
+                    logoutButton.disabled = false;
+                    logoutButton.textContent = 'Çıkış yap';
+                    alert('Çıkış yapılamadı. Lütfen tekrar deneyin.');
+                }
+            });
+        </script>
 
         <section class="customer-section">
             <h2>Müşteri Seçimi</h2>

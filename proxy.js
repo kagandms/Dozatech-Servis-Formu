@@ -2,7 +2,7 @@ import { next } from '@vercel/functions';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
 const SESSION_COOKIE = 'dozatech_session';
-const PUBLIC_PATHS = new Set(['/login.html', '/api/auth', '/logo.png', '/sw.js']);
+const PUBLIC_PATHS = new Set(['/login.html', '/api/auth', '/api/logout', '/logo.png', '/sw.js']);
 
 /** Protects static assets and pages with a signed, expiring session cookie. */
 export default function proxy(request) {
