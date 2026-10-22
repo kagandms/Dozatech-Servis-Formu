@@ -14,6 +14,7 @@
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="fonts.js"></script>
+    <script src="pdf-templates.js"></script>
 
     <style>
         /* CSS Variables - DozaTech Theme */
@@ -164,6 +165,31 @@
             padding-bottom: 80px;
         }
 
+        .brand-gate {
+            width: min(100% - 32px, 620px);
+            margin: clamp(32px, 10vh, 100px) auto;
+            padding: clamp(24px, 6vw, 42px);
+            border: 1px solid rgba(76, 201, 240, .2);
+            border-radius: 24px;
+            background: linear-gradient(145deg, rgba(18, 18, 31, .98), rgba(13, 21, 32, .98));
+            box-shadow: var(--shadow-soft), 0 0 70px rgba(76, 201, 240, .08);
+        }
+
+        .brand-gate[hidden], .container[hidden] { display: none; }
+        .brand-gate-kicker { color: var(--primary-color); font-size: .76rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+        .brand-gate h1 { margin: 8px 0; font-size: clamp(1.5rem, 6vw, 2.15rem); }
+        .brand-gate-copy { color: var(--text-secondary); margin-bottom: 24px; }
+        .brand-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+        .brand-option { position: relative; min-height: 148px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 18px; border: 1px solid rgba(184, 197, 214, .18); border-radius: 18px; background: rgba(13, 13, 24, .65); color: white; cursor: pointer; transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast); }
+        .brand-option:hover { transform: translateY(-2px); border-color: rgba(76, 201, 240, .65); }
+        .brand-option:has(input:checked) { border-color: var(--primary-color); background: rgba(76, 201, 240, .11); box-shadow: inset 0 0 0 1px var(--primary-color); }
+        .brand-option input { position: absolute; top: 12px; left: 12px; accent-color: var(--primary-color); }
+        .brand-option img { width: 142px; max-width: 100%; height: 54px; object-fit: contain; background: white; border-radius: 8px; padding: 5px 10px; }
+        .brand-option strong { font-size: 1rem; }
+        .brand-continue { width: 100%; margin-top: 20px; padding: 14px 18px; border: 0; border-radius: 12px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); color: #06131c; font: inherit; font-weight: 750; cursor: pointer; }
+        .brand-continue:disabled { cursor: not-allowed; opacity: .45; }
+        .brand-error { min-height: 1.4em; margin-top: 8px; color: #ff9baa; font-size: .85rem; }
+
         /* Logo Section */
         .logo-section {
             position: relative;
@@ -175,12 +201,17 @@
             margin-bottom: 16px;
         }
 
-        .logout-btn {
+        .header-actions {
             position: absolute;
             top: 50%;
             right: 8px;
-            padding: 10px 14px;
+            display: flex;
+            gap: 8px;
             transform: translateY(-50%);
+        }
+
+        .logout-btn, .change-brand-btn {
+            padding: 10px 14px;
             border: 1px solid rgba(239, 71, 111, .45);
             border-radius: 10px;
             background: rgba(239, 71, 111, .1);
@@ -195,6 +226,8 @@
         .logout-btn:hover { background: rgba(239, 71, 111, .2); border-color: var(--danger-color); }
         .logout-btn:disabled { cursor: wait; opacity: .65; }
         .logout-btn:focus-visible { outline: 3px solid var(--primary-light); outline-offset: 3px; }
+        .change-brand-btn { border-color: rgba(76, 201, 240, .4); background: rgba(76, 201, 240, .08); color: var(--primary-light); }
+        .change-brand-btn:hover { background: rgba(76, 201, 240, .16); }
 
         .logo-container {
             display: inline-block;
@@ -209,6 +242,8 @@
             height: auto;
             display: block;
         }
+
+        .logo-image.unilever-logo { width: 58px; max-width: 58px; height: 78px; object-fit: contain; }
 
         /* Sections */
         .customer-section,
@@ -572,14 +607,20 @@
             font-size: 1.2rem;
         }
 
+        @media (max-width: 700px) {
+            .logo-section { padding-top: 60px; }
+            .header-actions { top: 8px; right: 4px; transform: none; }
+        }
+
         @media (max-width: 480px) {
-            .logo-section { justify-content: space-between; gap: 10px; padding: 12px 4px; }
+            .logo-section { justify-content: center; gap: 10px; padding: 12px 4px; padding-top: 60px; }
 
             .logo-container { padding: 10px 12px; border-radius: 14px; }
 
             .logo-image { max-width: min(52vw, 220px); }
 
-            .logout-btn { position: static; flex-shrink: 0; padding: 9px 10px; transform: none; font-size: .76rem; }
+            .logout-btn, .change-brand-btn { flex-shrink: 0; padding: 8px 9px; font-size: .72rem; }
+            .brand-options { grid-template-columns: 1fr; }
 
             .checklist {
                 grid-template-columns: 1fr;
@@ -606,13 +647,36 @@
 </head>
 
 <body>
-    <div class="container" id="appContainer">
+    <section class="brand-gate" id="brandGate" aria-labelledby="brandGateTitle">
+        <p class="brand-gate-kicker">Servis formu</p>
+        <h1 id="brandGateTitle" tabindex="-1">Hangi marka için işlem yapıyoruz?</h1>
+        <p class="brand-gate-copy">Devam etmek için tek bir marka seçin. Form ve PDF seçilen markaya göre hazırlanır.</p>
+        <div class="brand-options" role="radiogroup" aria-label="Marka seçimi">
+            <label class="brand-option">
+                <input type="radio" name="serviceBrand" value="dozatech">
+                <img src="logo.png" alt="">
+                <strong>DozaTech</strong>
+            </label>
+            <label class="brand-option">
+                <input type="radio" name="serviceBrand" value="unilever">
+                <img src="assets/unilever-pro-logo.png" alt="">
+                <strong>Unilever</strong>
+            </label>
+        </div>
+        <button class="brand-continue" id="brandContinueButton" type="button" disabled>Seçimi onayla</button>
+        <p class="brand-error" id="brandSelectionError" aria-live="polite"></p>
+    </section>
+
+    <div class="container" id="appContainer" hidden>
         <header class="logo-section">
             <div class="logo-container">
-                <img src="logo.png" alt="DozaTech" class="logo-image">
+                <img src="logo.png" id="activeBrandLogo" alt="DozaTech" class="logo-image">
                 <img src="kase.jpg" id="kaseImage" style="display: none;" alt="Kase">
             </div>
-            <button class="logout-btn" id="logoutButton" type="button">Çıkış yap</button>
+            <div class="header-actions">
+                <button class="change-brand-btn" id="changeBrandButton" type="button">Marka değiştir</button>
+                <button class="logout-btn" id="logoutButton" type="button">Çıkış yap</button>
+            </div>
         </header>
 
         <script>
@@ -681,7 +745,7 @@
         </div>
 
         <footer>
-            <p>© 2024 DozaTech - Endüstriyel Mutfak Çözümleri</p>
+            <p>© 2024 <span id="footerBrandName">DozaTech</span> - Endüstriyel Mutfak Çözümleri</p>
         </footer>
     </div>
 
@@ -749,6 +813,7 @@
         let machineCount = 0; const machineStates = {};
         let pumpCount = 0; const pumpStates = {};
         let customers = []; let selectedCustomerId = null;
+        let activeBrand = null;
 
         // Elements
         const decreaseBtn = document.getElementById('decreaseBtn');
@@ -777,6 +842,7 @@
         let decreasePumpBtn, increasePumpBtn, pumpCountDisplay, pumpsContainer;
 
         function init() {
+            setupBrandSelection();
             // Inject Pump HTML
             if (!document.getElementById('pumpsSection')) {
                 const pumpHTML = `
@@ -813,6 +879,43 @@
             updatePumpUI();
             renderCustomerSelect();
             setupEventListeners();
+        }
+
+        function setupBrandSelection() {
+            const brandGate = document.getElementById('brandGate');
+            const appContainer = document.getElementById('appContainer');
+            const continueButton = document.getElementById('brandContinueButton');
+            const selectionError = document.getElementById('brandSelectionError');
+            const brandInputs = [...document.querySelectorAll('input[name="serviceBrand"]')];
+            const changeBrandButton = document.getElementById('changeBrandButton');
+
+            brandInputs.forEach(input => input.addEventListener('change', () => {
+                continueButton.disabled = false;
+                selectionError.textContent = '';
+            }));
+
+            continueButton.addEventListener('click', () => {
+                const selectedInput = brandInputs.find(input => input.checked);
+                if (!selectedInput) {
+                    selectionError.textContent = 'Devam etmek için DozaTech veya Unilever seçin.';
+                    return;
+                }
+
+                activeBrand = selectedInput.value;
+                const brandLogo = document.getElementById('activeBrandLogo');
+                brandLogo.src = activeBrand === 'unilever' ? 'assets/unilever-pro-logo.png' : 'logo.png';
+                brandLogo.alt = activeBrand === 'unilever' ? 'Unilever' : 'DozaTech';
+                brandLogo.classList.toggle('unilever-logo', activeBrand === 'unilever');
+                document.getElementById('footerBrandName').textContent = activeBrand === 'unilever' ? 'Unilever Profesyonel' : 'DozaTech';
+                brandGate.hidden = true;
+                appContainer.hidden = false;
+            });
+
+            changeBrandButton.addEventListener('click', () => {
+                brandGate.hidden = false;
+                appContainer.hidden = true;
+                document.getElementById('brandGateTitle').focus();
+            });
         }
 
         function setupEventListeners() {
@@ -1128,189 +1231,41 @@
         // === PDF LOGIC ===
         function getImageDataUrl(selector) {
             const img = document.querySelector(selector);
-            if (!img) return null;
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                return canvas.toDataURL('image/png');
-            } catch (e) {
-                return null;
-            }
+            if (!img?.complete || img.naturalWidth === 0) throw new Error('PDF için gerekli marka görseli yüklenemedi.');
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const context = canvas.getContext('2d');
+            if (!context) throw new Error('PDF görseli hazırlanamadı.');
+            context.drawImage(img, 0, 0);
+            return canvas.toDataURL('image/png');
         }
 
         function generatePDFBlob() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            // Add custom font if available
-            if (window.pdfFont) {
-                doc.addFileToVFS("Roboto-Regular.ttf", window.pdfFont);
-                doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
-                doc.setFont("Roboto");
-            } else {
-                doc.setFont('helvetica');
-            }
-
+            if (!activeBrand) throw new Error('PDF oluşturmadan önce bir marka seçin.');
             const customer = customers.find(c => c.id === selectedCustomerId);
-            const date = new Date().toLocaleDateString('tr-TR');
-            const time = new Date().toLocaleTimeString('tr-TR');
-            const pw = doc.internal.pageSize.width;
-            const ph = doc.internal.pageSize.height;
-            // FIX: PDF Colors match BG (#0a0a14 = 10,10,20)
-            const colDark = [10, 10, 20];
-            const colPrimary = [76, 201, 240];
-            const colAccent = [67, 97, 238];
-            let y = 0;
-
-            // HEADER
-            doc.setFillColor(...colDark);
-            doc.rect(0, 0, pw, 45, 'F');
-            doc.setFillColor(255, 255, 255);
-            doc.roundedRect(15, 10, 50, 25, 4, 4, 'F');
-            const logoData = getImageDataUrl('.logo-image');
-            if (logoData) {
-                try {
-                    const imgProps = doc.getImageProperties(logoData);
-                    const ratio = imgProps.height / imgProps.width;
-                    const logoW = 40; const logoH = logoW * ratio;
-                    const logoY = 10 + (25 - logoH) / 2;
-                    doc.addImage(logoData, 'PNG', 20, logoY, logoW, logoH);
-                } catch (e) { }
-            }
-            doc.setTextColor(255, 255, 255); doc.setFontSize(24); if (window.pdfFont) doc.setFont('Roboto', 'normal'); // Bold not available in subset
-            doc.text('SERVİS FORMU', pw - 15, 22, { align: 'right' });
-            doc.setTextColor(...colPrimary); doc.setFontSize(10);
-            doc.text(`Tarih: ${date}   Saat: ${time}`, pw - 15, 32, { align: 'right' });
-            doc.setDrawColor(...colPrimary); doc.setLineWidth(0.5); doc.line(15, 45, pw - 15, 45);
-
-            y = 60;
-
-            // DISHWASHER
-            if (machineCount > 0) {
-                doc.setTextColor(...colDark); doc.setFontSize(14);
-                doc.text(`BULAŞIK MAKİNELERİ (${machineCount})`, 15, y);
-                doc.setDrawColor(...colPrimary); doc.line(15, y + 3, 100, y + 3);
-                y += 15;
-                for (let i = 1; i <= machineCount; i++) {
-                    if (y > 230) { doc.addPage(); y = 20; }
-                    doc.setFillColor(...colPrimary); doc.roundedRect(15, y, pw - 30, 8, 2, 2, 'F');
-                    doc.setTextColor(...colDark); doc.setFontSize(10);
-                    doc.text(`Bulaşık Makinesi ${i}`, 20, y + 5.5);
-                    y += 15; // FIX: Increased distance (same as Pump)
-
-                    const state = machineStates[i] || {};
-                    doc.setFontSize(9);
-                    let xPos = 20;
-
-                    checklistItems.forEach((item, index) => {
-                        const status = state[item.id];
-                        doc.setFillColor(255, 255, 255);
-                        if (status === 'ok') doc.setFillColor(46, 204, 113); // Green
-                        if (status === 'fail') doc.setFillColor(239, 71, 111); // Red
-                        if (status) {
-                            doc.circle(xPos + 2, y - 1, 3, 'F'); doc.setTextColor(255, 255, 255); doc.setFontSize(7);
-                            const mark = status === 'ok' ? 'V' : 'X'; doc.text(mark, xPos + 2, y, { align: 'center' });
-                        } else {
-                            doc.setDrawColor(200, 200, 200); doc.circle(xPos + 2, y - 1, 3, 'S');
-                        }
-                        doc.setTextColor(80, 80, 80); doc.setFontSize(9); doc.text(item.label, xPos + 7, y);
-                        // FIX: Increased row spacing to avoid "dip dibe" look
-                        if (index % 2 === 0) xPos = pw / 2 + 5; else { xPos = 20; y += 8; }
-                    });
-                    if (checklistItems.length % 2 !== 0) y += 8; y += 10;
-                }
-                y += 10;
-            }
-
-            // DOSAGE PUMP
-            if (pumpCount > 0) {
-                if (y > 230) { doc.addPage(); y = 20; }
-                doc.setTextColor(...colDark); doc.setFontSize(14);
-                doc.text(`DOZAJ POMPALARI (${pumpCount})`, 15, y);
-                doc.setDrawColor(...colPrimary); doc.line(15, y + 3, 100, y + 3);
-                y += 15;
-                for (let i = 1; i <= pumpCount; i++) {
-                    if (y > 230) { doc.addPage(); y = 20; }
-                    doc.setFillColor(...colAccent); doc.roundedRect(15, y, pw - 30, 8, 2, 2, 'F');
-                    doc.setTextColor(255, 255, 255); doc.setFontSize(10);
-                    doc.text(`Dozaj Pompası ${i}`, 20, y + 5.5);
-                    y += 15;
-
-                    const state = pumpStates[i] || {};
-                    doc.setFontSize(9);
-                    let xPos = 20;
-                    pumpChecklistItems.forEach((item, index) => {
-                        const status = state[item.id];
-                        doc.setFillColor(255, 255, 255);
-                        if (status === 'ok') doc.setFillColor(46, 204, 113);
-                        if (status === 'fail') doc.setFillColor(239, 71, 111);
-                        if (status) {
-                            doc.circle(xPos + 2, y - 1, 3, 'F'); doc.setTextColor(255, 255, 255); doc.setFontSize(7);
-                            const mark = status === 'ok' ? 'V' : 'X'; doc.text(mark, xPos + 2, y, { align: 'center' });
-                        } else {
-                            doc.setDrawColor(200, 200, 200); doc.circle(xPos + 2, y - 1, 3, 'S');
-                        }
-                        doc.setTextColor(80, 80, 80); doc.setFontSize(9); doc.text(item.label, xPos + 7, y);
-                        // FIX: Increased row spacing
-                        if (index % 2 === 0) xPos = pw / 2 + 5; else { xPos = 20; y += 8; }
-                    });
-                    if (pumpChecklistItems.length % 2 !== 0) y += 8; y += 10;
-                }
-            }
-
-            // NOTES
-            if (generalNotes.value.trim()) {
-                if (y > 220) { doc.addPage(); y = 20; }
-                const txt = generalNotes.value;
-                doc.setFontSize(10); doc.setTextColor(...colDark); doc.text('NOTLAR:', 15, y); y += 6;
-                doc.setFontSize(9);
-                const lines = doc.splitTextToSize(txt, pw - 30);
-                doc.setFillColor(250, 250, 250); doc.setDrawColor(230, 230, 230);
-                const boxH = Math.max(15, lines.length * 5 + 10);
-                doc.rect(15, y, pw - 30, boxH, 'FD');
-                doc.setTextColor(50, 50, 50); doc.text(lines, 20, y + 6); y += boxH + 15;
-            } else { y += 10; }
-
-            // SIGNATURES
-            if (y > ph - 70) { doc.addPage(); y = 20; }
-            const bottomY = Math.max(y, ph - 80);
-            doc.setTextColor(...colDark); doc.setFontSize(10);
-            doc.text('DozaTech Teknik Servis', 40, bottomY + 5, { align: 'center' });
-
-            // Stamp
-            const stampData = getImageDataUrl('#kaseImage');
-            if (stampData) {
-                try {
-                    const sProps = doc.getImageProperties(stampData);
-                    const sRatio = sProps.height / sProps.width;
-                    const sW = 40; const sH = sW * sRatio;
-                    doc.addImage(stampData, 'JPEG', 20, bottomY + 8, sW, sH);
-                } catch (e) { }
-            } else { doc.text('İmza / Kaşe', 40, bottomY + 30, { align: 'center' }); }
-
-            doc.text('Müşteri', pw - 45, bottomY + 5, { align: 'center' });
-
-            // FIX: Customer Name moved UP closer to signature area
-            if (customer) {
-                doc.setFontSize(9);
-                // bottomY + 5 is "Musteri" text. Changed to +15 to be much closer as requested
-                doc.text(customer.name, pw - 45, bottomY + 15, { align: 'center' });
-            }
-            // FIX: Removed the line
-            // doc.setDrawColor(150, 150, 150); doc.line(pw - 70, bottomY + 35, pw - 20, bottomY + 35);
-
-            // FOOTER
-            doc.setFillColor(...colDark); doc.rect(0, ph - 15, pw, 15, 'F');
-            doc.setTextColor(150, 150, 150); doc.setFontSize(8);
+            const createdAt = new Date();
+            const date = createdAt.toLocaleDateString('tr-TR');
             const safeName = customer ? customer.name.replace(/\s+/g, '_') : 'Musteri';
-            const fn = `servisformu_${safeName}_${date.replace(/\./g, '-')}.pdf`;
-            doc.text('DozaTech - Endüstriyel Mutfak Çözümleri', pw / 2, ph - 9, { align: 'center' });
-            doc.text('Bu form dijital olarak oluşturulmuştur.', pw / 2, ph - 5, { align: 'center' });
-
-            return { blob: doc.output('blob'), fileName: fn };
+            const logoSelector = activeBrand === 'unilever' ? '.brand-option input[value="unilever"] + img' : '#activeBrandLogo';
+            const { blob } = window.createServicePdf({
+                brand: activeBrand,
+                customerName: customer?.name || '',
+                date,
+                time: createdAt.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                machineCount,
+                machineStates,
+                machineChecklist: checklistItems,
+                pumpCount,
+                pumpStates,
+                pumpChecklist: pumpChecklistItems,
+                notes: generalNotes.value.trim(),
+                logoData: getImageDataUrl(logoSelector),
+                stampData: activeBrand === 'dozatech' ? getImageDataUrl('#kaseImage') : null,
+                fontBase64: window.pdfFont || ''
+            });
+            const fileName = `${activeBrand === 'unilever' ? 'unilever' : 'dozatech'}_servisformu_${safeName}_${date.replace(/\./g, '-')}.pdf`;
+            return { blob, fileName };
         }
 
         function handleSavePDF() {
