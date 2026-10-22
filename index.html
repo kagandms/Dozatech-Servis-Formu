@@ -165,9 +165,9 @@
             padding-bottom: 80px;
         }
 
-        .brand-gate {
-            width: min(100% - 32px, 620px);
-            margin: clamp(32px, 10vh, 100px) auto;
+        .brand-selection-section {
+            width: min(100%, 620px);
+            margin: 0 auto 16px;
             padding: clamp(24px, 6vw, 42px);
             border: 1px solid rgba(76, 201, 240, .2);
             border-radius: 24px;
@@ -175,9 +175,9 @@
             box-shadow: var(--shadow-soft), 0 0 70px rgba(76, 201, 240, .08);
         }
 
-        .brand-gate[hidden], .container[hidden] { display: none; }
+        .brand-selection-section[hidden], #formContent[hidden] { display: none; }
         .brand-gate-kicker { color: var(--primary-color); font-size: .76rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-        .brand-gate h1 { margin: 8px 0; font-size: clamp(1.5rem, 6vw, 2.15rem); }
+        .brand-selection-section h2 { margin: 8px 0; font-size: clamp(1.25rem, 5vw, 1.7rem); }
         .brand-gate-copy { color: var(--text-secondary); margin-bottom: 24px; }
         .brand-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
         .brand-option { position: relative; min-height: 148px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 18px; border: 1px solid rgba(184, 197, 214, .18); border-radius: 18px; background: rgba(13, 13, 24, .65); color: white; cursor: pointer; transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast); }
@@ -192,22 +192,19 @@
 
         /* Logo Section */
         .logo-section {
-            position: relative;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            gap: 16px;
             text-align: center;
             padding: 20px 8px;
             margin-bottom: 16px;
         }
 
         .header-actions {
-            position: absolute;
-            top: 50%;
-            right: 8px;
             display: flex;
             gap: 8px;
-            transform: translateY(-50%);
+            flex-shrink: 0;
         }
 
         .logout-btn, .change-brand-btn {
@@ -608,12 +605,13 @@
         }
 
         @media (max-width: 700px) {
-            .logo-section { padding-top: 60px; }
-            .header-actions { top: 8px; right: 4px; transform: none; }
+            .logo-section { flex-direction: column-reverse; align-items: stretch; padding: 12px 4px; }
+            .header-actions { justify-content: flex-end; }
+            .logo-container { align-self: center; }
         }
 
         @media (max-width: 480px) {
-            .logo-section { justify-content: center; gap: 10px; padding: 12px 4px; padding-top: 60px; }
+            .logo-section { justify-content: center; gap: 10px; padding: 12px 4px; }
 
             .logo-container { padding: 10px 12px; border-radius: 14px; }
 
@@ -647,34 +645,14 @@
 </head>
 
 <body>
-    <section class="brand-gate" id="brandGate" aria-labelledby="brandGateTitle">
-        <p class="brand-gate-kicker">Servis formu</p>
-        <h1 id="brandGateTitle" tabindex="-1">Hangi marka için işlem yapıyoruz?</h1>
-        <p class="brand-gate-copy">Devam etmek için tek bir marka seçin. Form ve PDF seçilen markaya göre hazırlanır.</p>
-        <div class="brand-options" role="radiogroup" aria-label="Marka seçimi">
-            <label class="brand-option">
-                <input type="radio" name="serviceBrand" value="dozatech">
-                <img src="logo.png" alt="">
-                <strong>DozaTech</strong>
-            </label>
-            <label class="brand-option">
-                <input type="radio" name="serviceBrand" value="unilever">
-                <img src="assets/unilever-pro-logo.png" alt="">
-                <strong>Unilever</strong>
-            </label>
-        </div>
-        <button class="brand-continue" id="brandContinueButton" type="button" disabled>Seçimi onayla</button>
-        <p class="brand-error" id="brandSelectionError" aria-live="polite"></p>
-    </section>
-
-    <div class="container" id="appContainer" hidden>
+    <div class="container" id="appContainer">
         <header class="logo-section">
             <div class="logo-container">
                 <img src="logo.png" id="activeBrandLogo" alt="DozaTech" class="logo-image">
                 <img src="kase.jpg" id="kaseImage" style="display: none;" alt="Kase">
             </div>
             <div class="header-actions">
-                <button class="change-brand-btn" id="changeBrandButton" type="button">Marka değiştir</button>
+                <button class="change-brand-btn" id="changeBrandButton" type="button" hidden>Marka değiştir</button>
                 <button class="logout-btn" id="logoutButton" type="button">Çıkış yap</button>
             </div>
         </header>
@@ -698,6 +676,27 @@
             });
         </script>
 
+        <section class="brand-selection-section customer-section" id="brandSelectionSection" aria-labelledby="brandGateTitle">
+            <p class="brand-gate-kicker">Servis formu</p>
+            <h2 id="brandGateTitle" tabindex="-1">Önce markayı seçin</h2>
+            <p class="brand-gate-copy">Form ve PDF seçtiğiniz tek markaya göre hazırlanır.</p>
+            <div class="brand-options" role="radiogroup" aria-label="Marka seçimi">
+                <label class="brand-option">
+                    <input type="radio" name="serviceBrand" value="dozatech">
+                    <img src="logo.png" alt="">
+                    <strong>DozaTech</strong>
+                </label>
+                <label class="brand-option">
+                    <input type="radio" name="serviceBrand" value="unilever">
+                    <img src="assets/unilever-pro-logo.png" alt="">
+                    <strong>Unilever</strong>
+                </label>
+            </div>
+            <button class="brand-continue" id="brandContinueButton" type="button" disabled>Seçimi onayla</button>
+            <p class="brand-error" id="brandSelectionError" aria-live="polite"></p>
+        </section>
+
+        <div id="formContent" hidden>
         <section class="customer-section">
             <h2>Müşteri Seçimi</h2>
             <div class="customer-controls">
@@ -747,6 +746,7 @@
         <footer>
             <p>© 2024 <span id="footerBrandName">DozaTech</span> - Endüstriyel Mutfak Çözümleri</p>
         </footer>
+        </div>
     </div>
 
     <!-- Modals -->
@@ -882,16 +882,16 @@
         }
 
         function setupBrandSelection() {
-            const brandGate = document.getElementById('brandGate');
-            const appContainer = document.getElementById('appContainer');
+            const brandSection = document.getElementById('brandSelectionSection');
+            const formContent = document.getElementById('formContent');
             const continueButton = document.getElementById('brandContinueButton');
             const selectionError = document.getElementById('brandSelectionError');
             const brandInputs = [...document.querySelectorAll('input[name="serviceBrand"]')];
             const changeBrandButton = document.getElementById('changeBrandButton');
 
             bindBrandChoiceInputs(brandInputs, continueButton, selectionError);
-            continueButton.addEventListener('click', () => continueWithSelectedBrand(brandInputs, brandGate, appContainer, selectionError));
-            changeBrandButton.addEventListener('click', () => showBrandGate(brandGate, appContainer));
+            continueButton.addEventListener('click', () => continueWithSelectedBrand(brandInputs, brandSection, formContent, selectionError));
+            changeBrandButton.addEventListener('click', () => showBrandSelection(brandSection, formContent));
         }
 
         function bindBrandChoiceInputs(brandInputs, continueButton, selectionError) {
@@ -901,7 +901,7 @@
             }));
         }
 
-        function continueWithSelectedBrand(brandInputs, brandGate, appContainer, selectionError) {
+        function continueWithSelectedBrand(brandInputs, brandSection, formContent, selectionError) {
             const selectedInput = brandInputs.find(input => input.checked);
             if (!selectedInput) {
                 selectionError.textContent = 'Devam etmek için DozaTech veya Unilever seçin.';
@@ -910,8 +910,8 @@
 
             activeBrand = selectedInput.value;
             updateActiveBrandIdentity(activeBrand);
-            brandGate.hidden = true;
-            appContainer.hidden = false;
+            brandSection.hidden = true;
+            formContent.hidden = false;
         }
 
         function updateActiveBrandIdentity(brand) {
@@ -920,11 +920,12 @@
             brandLogo.alt = brand === 'unilever' ? 'Unilever' : 'DozaTech';
             brandLogo.classList.toggle('unilever-logo', brand === 'unilever');
             document.getElementById('footerBrandName').textContent = brand === 'unilever' ? 'Unilever Profesyonel' : 'DozaTech';
+            document.getElementById('changeBrandButton').hidden = false;
         }
 
-        function showBrandGate(brandGate, appContainer) {
-            brandGate.hidden = false;
-            appContainer.hidden = true;
+        function showBrandSelection(brandSection, formContent) {
+            brandSection.hidden = false;
+            formContent.hidden = true;
             document.getElementById('brandGateTitle').focus();
         }
 
