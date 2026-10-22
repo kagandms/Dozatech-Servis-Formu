@@ -22,6 +22,7 @@
      */
     function createServicePdf(options) {
         const doc = createPdfDocument(options);
+        if (options.brand === 'unilever') return createUnileverPdf(doc, options);
         const theme = getTheme(options.brand);
         const page = { width: 210, height: 297, left: 14, right: 196 };
         const layout = createPageLayout(doc, options, page, theme);
@@ -268,10 +269,10 @@
         doc.setFontSize(8);
         doc.text('MÜŞTERİ', 151, top + 6, { align: 'center' });
         doc.setDrawColor(...theme.primary);
-        doc.line(119, top + 39, 183, top + 39);
+        // Keep the customer name next to its heading, above the signature space.
         doc.setTextColor(...COLORS.ink);
         doc.setFontSize(9);
-        if (options.customerName) doc.text(options.customerName, 151, top + 45, { align: 'center', maxWidth: 70 });
+        if (options.customerName) doc.text(options.customerName, 151, top + 16, { align: 'center', maxWidth: 70 });
     }
 
     function drawFooters(doc, brand, page) {
@@ -303,6 +304,138 @@
         const width = image.width * ratio;
         const height = image.height * ratio;
         doc.addImage(imageData, image.fileType || 'PNG', x + (maxWidth - width) / 2, y + (maxHeight - height) / 2, width, height);
+    }
+
+
+    function createUnileverPdf(doc, options) {
+        const layout = { y: 60, bottom: 245 };
+        doc.setFillColor(255, 255, 255);
+        doc.rect(0, 0, 210, 297, 'F');
+        drawReferenceHeader(doc, options);
+        drawReferenceGroup(doc, { count: options.machineCount, states: options.machineStates,
+            items: options.machineChecklist, heading: 'BULAŞIK MAKİNELERİ', title: 'Bulaşık Makinesi',
+            color: [76, 201, 240], textColor: COLORS.ink }, layout);
+        drawReferenceGroup(doc, { count: options.pumpCount, states: options.pumpStates,
+            items: options.pumpChecklist, heading: 'DOZAJ POMPALARI', title: 'Dozaj Pompası',
+            color: [67, 97, 238], textColor: COLORS.paper }, layout);
+        drawReferenceNotes(doc, options.notes, layout);
+        if (layout.y > 260) { doc.addPage(); layout.y = 20; }
+        drawReferenceSignatures(doc, options, Math.max(layout.y, 250));
+        drawReferenceFooters(doc);
+        return { blob: doc.output('blob') };
+    }
+
+    function drawReferenceHeader(doc, options) {
+        doc.setFillColor(21, 61, 129);
+        doc.rect(0, 0, 210, 45, 'F');
+        addContainedImage(doc, options.logoData, 20, 7, 40, 31);
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.text('SERVİS FORMU', 195, 22, { align: 'right' });
+        doc.setFontSize(10);
+        doc.text(`Tarih: ${options.date}   Saat: ${options.time}`, 195, 32, { align: 'right' });
+        doc.setDrawColor(255, 255, 255);
+        doc.setLineWidth(.5);
+        doc.line(15, 45, 195, 45);
+    }
+
+    function ensureReferenceSpace(doc, layout, height) {
+        if (layout.y + height <= layout.bottom) return;
+        doc.addPage();
+        layout.y = 20;
+    }
+
+    function drawReferenceGroup(doc, group, layout) {
+        if (!group.count) return;
+        const height = 15 + Math.ceil(group.items.length / 2) * 8;
+        layout.bottom = 260;
+        ensureReferenceSpace(doc, layout, height + 6);
+        doc.setTextColor(21, 61, 129);
+        doc.setFontSize(14);
+        doc.text(`${group.heading} (${group.count})`, 15, layout.y);
+        doc.setDrawColor(0, 174, 202);
+        doc.setLineWidth(.5);
+        doc.line(15, layout.y + 3, 100, layout.y + 3);
+        layout.y += 10;
+        for (let number = 1; number <= group.count; number += 1) {
+            ensureReferenceSpace(doc, layout, height);
+            drawReferenceCard(doc, { ...group, number, y: layout.y });
+            layout.y += height;
+        }
+        layout.y += 5;
+    }
+
+    function drawReferenceCard(doc, options) {
+        doc.setFillColor(...options.color);
+        doc.roundedRect(15, options.y, 180, 8, 2, 2, 'F');
+        doc.setTextColor(...options.textColor);
+        doc.setFontSize(10);
+        doc.text(`${options.title} ${options.number}`, 20, options.y + 5.5);
+        options.items.forEach((item, index) => {
+            const x = index % 2 === 0 ? 20 : 110;
+            const y = options.y + 15 + Math.floor(index / 2) * 8;
+            drawReferenceStatus(doc, options.states[options.number]?.[item.id], x + 2, y - 1);
+            doc.setTextColor(80, 80, 80);
+            doc.setFontSize(9);
+            doc.text(item.label, x + 7, y);
+        });
+    }
+
+    function drawReferenceStatus(doc, status, x, y) {
+        doc.setLineWidth(.3);
+        if (!status) {
+            doc.setDrawColor(200, 200, 200);
+            doc.circle(x, y, 3, 'S');
+            return;
+        }
+        doc.setFillColor(...(status === 'ok' ? [46, 204, 113] : [239, 71, 111]));
+        doc.circle(x, y, 3, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(7);
+        doc.text(status === 'ok' ? 'V' : 'X', x, y + 1, { align: 'center' });
+    }
+
+    function drawReferenceNotes(doc, notes, layout) {
+        if (!notes) return;
+        doc.setFontSize(9);
+        const lines = doc.splitTextToSize(notes, 170);
+        const height = Math.max(15, lines.length * 5 + 10);
+        layout.bottom = 260;
+        ensureReferenceSpace(doc, layout, height + 6);
+        doc.setFontSize(10);
+        doc.setTextColor(21, 61, 129);
+        doc.text('NOTLAR:', 15, layout.y);
+        layout.y += 6;
+        doc.setFillColor(250, 250, 250);
+        doc.setDrawColor(230, 230, 230);
+        doc.rect(15, layout.y, 180, height, 'FD');
+        doc.setFontSize(9);
+        doc.setTextColor(50, 50, 50);
+        doc.text(lines, 20, layout.y + 6);
+        layout.y += height + 15;
+    }
+
+    function drawReferenceSignatures(doc, options, y) {
+        doc.setTextColor(21, 61, 129);
+        doc.setFontSize(10);
+        doc.text('Servis Teknisyeni', 40, y + 5, { align: 'center' });
+        doc.text('Müşteri', 165, y + 5, { align: 'center' });
+        doc.setFontSize(9);
+        doc.text('Ahmet Durmuş', 40, y + 12, { align: 'center' });
+        doc.text(doc.splitTextToSize(options.customerName || '', 65), 165, y + 15, { align: 'center' });
+    }
+
+    function drawReferenceFooters(doc) {
+        const count = doc.getNumberOfPages();
+        for (let pageNumber = 1; pageNumber <= count; pageNumber += 1) {
+            doc.setPage(pageNumber);
+            doc.setFillColor(21, 61, 129);
+            doc.rect(0, 282, 210, 15, 'F');
+            doc.setTextColor(150, 170, 200);
+            doc.setFontSize(8);
+            doc.text('Unilever', 105, 288, { align: 'center' });
+            doc.text('Bu form dijital olarak oluşturulmuştur.', 105, 292, { align: 'center' });
+        }
     }
 
     window.createServicePdf = createServicePdf;
