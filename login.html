@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Dozatech Servis Formu Girişi</title>
+    <style>
+        :root { color-scheme: light; font-family: Arial, sans-serif; }
+        body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #1a1a2e; color: #222; }
+        main { width: min(360px, calc(100% - 40px)); padding: 30px; border-radius: 16px; background: white; box-sizing: border-box; }
+        h1 { margin: 0 0 22px; font-size: 22px; text-align: center; }
+        label, input, button { display: block; width: 100%; box-sizing: border-box; }
+        input[type="password"] { margin-top: 8px; padding: 12px; border: 1px solid #bbb; border-radius: 8px; }
+        .remember { display: flex; gap: 9px; align-items: center; margin: 16px 0; }
+        .remember input { width: auto; }
+        button { padding: 12px; border: 0; border-radius: 8px; background: #e63946; color: white; font-weight: 700; cursor: pointer; }
+        #loginError { min-height: 20px; color: #b00020; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Servis Formu Girişi</h1>
+        <form id="loginForm">
+            <label for="password">Şifre</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+            <label class="remember"><input id="remember" type="checkbox"> Beni hatırla</label>
+            <button type="submit">Giriş Yap</button>
+            <p id="loginError" role="alert" aria-live="polite"></p>
+        </form>
+    </main>
+    <script>
+        const loginForm = document.querySelector('#loginForm');
+        const passwordInput = document.querySelector('#password');
+        const loginError = document.querySelector('#loginError');
+
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            loginError.textContent = '';
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        password: passwordInput.value,
+                        remember: document.querySelector('#remember').checked
+                    })
+                });
+                if (!response.ok) throw new Error('login_failed');
+                window.location.replace('/');
+            } catch {
+                loginError.textContent = 'Giriş yapılamadı. Şifreyi kontrol edip tekrar deneyin.';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>
