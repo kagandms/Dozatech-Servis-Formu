@@ -4,47 +4,239 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <title>Dozatech Servis Formu Girişi</title>
+    <meta name="theme-color" content="#07111f">
+    <title>DozaTech | Servis Formu Girişi</title>
     <style>
-        :root { color-scheme: light; font-family: Arial, sans-serif; }
-        body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #1a1a2e; color: #222; }
-        main { width: min(360px, calc(100% - 40px)); padding: 30px; border-radius: 16px; background: white; box-sizing: border-box; }
-        h1 { margin: 0 0 22px; font-size: 22px; text-align: center; }
-        label, input, button { display: block; width: 100%; box-sizing: border-box; }
-        input[type="password"] { margin-top: 8px; padding: 12px; border: 1px solid #bbb; border-radius: 8px; }
-        .remember { display: flex; gap: 9px; align-items: center; margin: 16px 0; }
-        .remember input { width: auto; }
-        button { padding: 12px; border: 0; border-radius: 8px; background: #e63946; color: white; font-weight: 700; cursor: pointer; }
-        #loginError { min-height: 20px; color: #b00020; font-size: 14px; }
+        :root {
+            color-scheme: dark;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+            --text: #eef6ff;
+            --muted: #9aabc0;
+            --cyan: #26b7d4;
+            --line: rgba(166, 197, 220, .18);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            min-height: 100svh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            overflow-x: hidden;
+            color: var(--text);
+            background:
+                radial-gradient(ellipse at 18% 12%, rgba(19, 111, 153, .22), transparent 38%),
+                radial-gradient(ellipse at 86% 88%, rgba(29, 90, 139, .2), transparent 40%),
+                #07111f;
+        }
+
+        body::before {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-image: linear-gradient(rgba(160, 200, 230, .025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(160, 200, 230, .025) 1px, transparent 1px);
+            background-size: 44px 44px;
+            content: "";
+            mask-image: linear-gradient(to bottom, black, transparent 78%);
+        }
+
+        main {
+            width: min(100%, 430px);
+            padding: 34px;
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            background: linear-gradient(155deg, rgba(20, 35, 53, .97), rgba(11, 22, 36, .97));
+            box-shadow: 0 28px 90px rgba(0, 0, 0, .48), inset 0 1px rgba(255, 255, 255, .04);
+        }
+
+        .brand {
+            display: flex;
+            justify-content: center;
+            margin: 0 auto 30px;
+            padding: 12px 18px;
+            border-radius: 15px;
+            background: #fff;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, .2);
+        }
+
+        .brand img { display: block; width: min(100%, 235px); height: auto; }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: #77d9e9;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .16em;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        h1 { margin: 0; font-size: clamp(1.45rem, 5vw, 1.75rem); text-align: center; }
+
+        .intro {
+            margin: 10px 0 28px;
+            color: var(--muted);
+            font-size: .94rem;
+            line-height: 1.55;
+            text-align: center;
+        }
+
+        label[for="password"] { display: block; margin-bottom: 9px; font-size: .88rem; font-weight: 650; }
+
+        .password-field { position: relative; }
+
+        input[type="password"], input[type="text"] {
+            width: 100%;
+            min-height: 54px;
+            padding: 0 56px 0 16px;
+            border: 1px solid rgba(159, 186, 209, .28);
+            border-radius: 12px;
+            outline: none;
+            background: rgba(4, 13, 24, .72);
+            color: var(--text);
+            font: inherit;
+            letter-spacing: .04em;
+            transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+
+        input::placeholder { color: #718299; letter-spacing: 0; }
+        input:focus { border-color: var(--cyan); background: #091726; box-shadow: 0 0 0 4px rgba(38, 183, 212, .13); }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            display: grid;
+            width: 40px;
+            height: 40px;
+            place-items: center;
+            transform: translateY(-50%);
+            border: 0;
+            border-radius: 9px;
+            background: transparent;
+            color: #a8bbce;
+            cursor: pointer;
+        }
+
+        .toggle-password:hover { background: rgba(255, 255, 255, .06); color: #fff; }
+        .toggle-password:focus-visible, button[type="submit"]:focus-visible, .remember input:focus-visible { outline: 3px solid #77d9e9; outline-offset: 3px; }
+        .toggle-password svg { width: 20px; height: 20px; }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: fit-content;
+            margin: 18px 0 22px;
+            color: #c2cfdd;
+            font-size: .9rem;
+            cursor: pointer;
+        }
+
+        .remember input { width: 17px; height: 17px; margin: 0; accent-color: var(--cyan); cursor: pointer; }
+        .remember span { display: grid; gap: 2px; }
+        .remember small { color: var(--muted); font-size: .75rem; }
+
+        button[type="submit"] {
+            display: flex;
+            width: 100%;
+            min-height: 54px;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 0;
+            border-radius: 12px;
+            background: linear-gradient(105deg, #39c5dc, #1598c5);
+            box-shadow: 0 9px 24px rgba(20, 159, 194, .2);
+            color: #06131f;
+            font: inherit;
+            font-weight: 750;
+            cursor: pointer;
+            transition: filter .18s ease, transform .18s ease;
+        }
+
+        button[type="submit"]:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        button[type="submit"]:disabled { cursor: wait; filter: saturate(.65); transform: none; }
+        #loginError { min-height: 22px; margin: 13px 0 0; color: #ff9a9a; font-size: .84rem; line-height: 1.45; }
+
+        .footer { margin: 17px 0 0; color: #77899d; font-size: .74rem; text-align: center; }
+
+        @media (max-width: 480px) {
+            body { padding: 16px; }
+            main { padding: 28px 22px; border-radius: 20px; }
+            .brand { margin-bottom: 26px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+        }
     </style>
 </head>
 <body>
     <main>
-        <h1>Servis Formu Girişi</h1>
+        <div class="brand"><img src="/logo.png" alt="DozaTech"></div>
+        <p class="eyebrow">DozaTech · Servis</p>
+        <h1>Tekrar hoş geldiniz</h1>
+        <p class="intro">Servis formuna devam etmek için şifrenizi girin.</p>
+
         <form id="loginForm">
-            <label for="password">Şifre</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" required>
-            <label class="remember"><input id="remember" type="checkbox"> Beni hatırla</label>
-            <button type="submit">Giriş Yap</button>
+            <label for="password">Erişim şifresi</label>
+            <div class="password-field">
+                <input id="password" name="password" type="password" autocomplete="current-password"
+                    placeholder="Şifrenizi girin" aria-describedby="loginError" required>
+                <button class="toggle-password" id="togglePassword" type="button" aria-label="Şifreyi göster" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+            </div>
+
+            <label class="remember" for="remember">
+                <input id="remember" name="remember" type="checkbox">
+                <span>Beni hatırla<small>Bu cihazda 30 gün oturum açık kalır</small></span>
+            </label>
+
+            <button type="submit" id="submitButton"><span id="submitLabel">Giriş yap</span></button>
             <p id="loginError" role="alert" aria-live="polite"></p>
         </form>
+        <p class="footer">Yetkili kullanım içindir</p>
     </main>
+
     <script>
         const loginForm = document.querySelector('#loginForm');
         const passwordInput = document.querySelector('#password');
         const loginError = document.querySelector('#loginError');
+        const rememberInput = document.querySelector('#remember');
+        const submitButton = document.querySelector('#submitButton');
+        const submitLabel = document.querySelector('#submitLabel');
+        const togglePassword = document.querySelector('#togglePassword');
+
+        togglePassword.addEventListener('click', () => {
+            const isVisible = passwordInput.type === 'text';
+            passwordInput.type = isVisible ? 'password' : 'text';
+            togglePassword.setAttribute('aria-pressed', String(!isVisible));
+            togglePassword.setAttribute('aria-label', isVisible ? 'Şifreyi göster' : 'Şifreyi gizle');
+        });
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             loginError.textContent = '';
+            submitButton.disabled = true;
+            submitButton.setAttribute('aria-busy', 'true');
+            submitLabel.textContent = 'Kontrol ediliyor…';
+
             try {
                 const response = await fetch('/api/auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        password: passwordInput.value,
-                        remember: document.querySelector('#remember').checked
-                    })
+                    body: JSON.stringify({ password: passwordInput.value, remember: rememberInput.checked })
                 });
                 if (!response.ok) throw new Error('login_failed');
                 window.location.replace('/');
@@ -52,6 +244,10 @@
                 loginError.textContent = 'Giriş yapılamadı. Şifreyi kontrol edip tekrar deneyin.';
                 passwordInput.value = '';
                 passwordInput.focus();
+            } finally {
+                submitButton.disabled = false;
+                submitButton.removeAttribute('aria-busy');
+                submitLabel.textContent = 'Giriş yap';
             }
         });
     </script>
